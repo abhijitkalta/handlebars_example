@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Title of the document</title>
+<style type="text/css">
+  .redText{color: red;}
+  .blueText{color: blue;}
+  .greenText{color: green;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.js"></script>
+</head>
+
+<body>
+  <div id="data">
+  </div>
+  <div id="quotesData">
+  </div>
+  <div id="commentsData">
+  </div>
+
+<script id="quote-template" type="text/x-handlebars-template">
+  <h3>Favpourite {{name}} quotes</h3>
+  <ol>
+    {{#each quotes}}
+    <li>{{quote}}</li>
+    {{/each}}
+  </ol>
+  <p>{{{bio}}}</p>
+  {{link 'About' 'http://example.com'}}
+  {{changeColor 'Hello World!!' color="bl"}}
+  {{sayHello}}
+  <div>
+    {{#makeRadio 'size'}}
+      Small
+      Medium
+      Large
+    {{/makeRadio}}
+  </div>
+  <div>
+    {{#list people}}
+      {{firstName}}
+      {{lastName}}
+    {{/list}}
+  </div>
+  <div>
+    {{#areEqual 2 2}}
+      Numbers are equal!!
+      {{else}}
+      Numbers are not equal!!
+    {{/areEqual}}
+  </div>
+</script>
+
+<script id="comment-template" type="text/x-handlebars-template">
+  {{> myComments}}
+
+  <div class="post">
+    {{> userMessage tagName="h1" }}
+
+    <h1>Comments</h1>
+
+    {{#each comments}}
+      {{> userMessage tagName="h2" }}
+    {{/each}}
+  </div>
+</script>
+
+<script type="text/javascript">
+  var info = "<p>My name is {{name}}, location: {{state}}</p>";
+  var template = Handlebars.compile(info);
+  var data = template({name: 'Abhijit', state: 'Kar'});
+  document.getElementById('data').innerHTML += data;
+
+  var quoteInfo = document.getElementById('quote-template').innerHTML;
+  var quoteTemplate = Handlebars.compile(quoteInfo);
+
+  var commentInfo = document.getElementById('comment-template').innerHTML;
+  var commentTemplate = Handlebars.compile(commentInfo);
+
+  Handlebars.registerPartial('myComments', '{{name}} , {{comment}}');
+  Handlebars.registerPartial('userMessage',
+    '<{{tagName}}>By {{author.firstName}} {{author.lastName}}</{{tagName}}>'
+    + '<div class="body">{{body}}</div>');
+    var commentData = commentTemplate({
+      name: 'ATK',
+      comment: 'ASDS',
+      author: {firstName: "Alan", lastName: "Johnson"},
+      body: "I Love Handlebars",
+      comments: [{
+        author: {firstName: "Yehuda", lastName: "Katz"},
+        body: "Me too!"
+      }]
+    });
+
+  document.getElementById('commentsData').innerHTML += commentData;
+
+  Handlebars.registerHelper('link', function(text, url) {
+  text = Handlebars.Utils.escapeExpression(text);
+  url  = Handlebars.Utils.escapeExpression(url);
+
+  var result = '<a href="' + url + '">' + text + '</a>';
+
+  return new Handlebars.SafeString(result);
+  });
+
+  Handlebars.registerHelper('changeColor', function(text, options){
+    text = Handlebars.Utils.escapeExpression(text);
+    if(options.hash.color === 'red'){
+      var result = "<span class='redText'>" + text + "</span>";
+      return new Handlebars.SafeString(result);
+    }
+    else if (options.hash.color === 'blue') {
+      var result = "<span class='blueText'>" + text + "</span>";
+      return new Handlebars.SafeString(result);
+    }
+    else {
+      var result = "<span class='greenText'>" + text + "</span>";
+      return new Handlebars.SafeString(result);
+    }
+  });
+
+  Handlebars.registerHelper('sayHello', function(options){
+    console.log(options.data.lang);
+    switch (options.data.lang) {
+      case 'spanish':
+        return 'Holla';
+        break;
+      default:
+        return 'Hellloz';
+    }
+  });
+
+  Handlebars.registerHelper('makeRadio', function(text, options){
+    var radioList = options.fn();
+    radioList = radioList.trim().split('\n');
+    var res = "";
+    for (var val of radioList) {
+      val = val.trim();
+      res += "<input type='radio' name=" + val + ">" + val + "</input> <br/>";
+    };
+    return res;
+  });
+
+  Handlebars.registerHelper('list', function(text, options){
+    var res = "<ul>";
+    for (var val of text) {
+      res += "<li>" + options.fn(val) + "</li>";
+    };
+    res += "</ul>";
+    return res;
+  });
+
+  Handlebars.registerHelper('areEqual', function(num1, num2, options){
+    if(num1 === num2){
+      return options.fn(this);
+    }else {
+      return options.inverse(this);
+    }
+  });
+
+  var quoteData = quoteTemplate({
+    name: 'xyz',
+    quotes: [{
+      quote: 'hello'
+    },{
+      quote: 'world'
+    }],
+    bio: '<i>qwerty!!</i>',
+    people: [
+      {
+        firstName: "Yehuda",
+        lastName: "Katz"
+      },
+      {
+        firstName: "Carl",
+        lastName: "Lerche"
+      },
+      {
+        firstName: "Alan",
+        lastName: "Johnson"
+      }
+    ]},
+    {
+      data: {
+        lang: 'spanish'
+      }
+    }
+  );
+  document.getElementById('quotesData').innerHTML += quoteData;
+
+</script>
+</body>
+
+</html>
